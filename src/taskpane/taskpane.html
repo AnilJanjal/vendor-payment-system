@@ -1,0 +1,273 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <title>Vendor Payment Manager</title>
+    <!-- Office.js MUST be loaded first -->
+    <script src="https://appsforoffice.microsoft.com/lib/1/hosted/office.js"></script>
+    <link
+      rel="stylesheet"
+      href="https://res-1.cdn.office.net/files/fabric-cdn-prod_20230815.002/office-ui-fabric-core/11.1.0/css/fabric.min.css"
+    />
+    <link
+      rel="stylesheet"
+      href="https://static2.sharepointonline.com/files/fabric/office-ui-fabric-core/11.0.0/css/fabric.min.css"
+    />
+
+    <style>
+      /* Banking Container */
+      .banking-container {
+        max-width: 400px;
+        margin: 0 auto;
+        padding: 40px;
+        background: white;
+        border-radius: 8px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+      }
+
+      /* Header Styles */
+      .banking-header {
+        text-align: center;
+        margin-bottom: 30px;
+        position: relative;
+      }
+
+      .banking-logo {
+        width: 80px;
+        height: 80px;
+        margin-bottom: 15px;
+        object-fit: contain;
+      }
+
+      .banking-title {
+        color: #0078d4;
+        font-weight: 600;
+        margin-bottom: 5px;
+      }
+
+      .banking-subtitle {
+        color: #666;
+        font-size: 14px;
+      }
+
+      /* Form Elements */
+      .banking-input {
+        margin-bottom: 20px;
+      }
+
+      .banking-input label {
+        display: block;
+        margin-bottom: 8px;
+        color: #333;
+        font-weight: 500;
+      }
+
+      .banking-input input,
+      .banking-input select {
+        width: 100%;
+        padding: 12px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        font-size: 15px;
+        box-sizing: border-box;
+      }
+
+      /* Buttons */
+      .banking-button {
+        width: 100%;
+        padding: 12px;
+        background: #0078d4;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        font-size: 16px;
+        cursor: pointer;
+        transition: background 0.3s;
+      }
+
+      .banking-button:hover {
+        background: #106ebe;
+      }
+
+      /* Error Messages */
+      .banking-error {
+        color: #d13438;
+        text-align: center;
+        margin-top: 15px;
+        font-size: 14px;
+      }
+
+      /* Footer */
+      .banking-footer {
+        text-align: center;
+        margin-top: 30px;
+        color: #666;
+        font-size: 12px;
+      }
+
+      /* Confirmation Dialog */
+      .dialog-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.5);
+        display: none;
+        justify-content: center;
+        align-items: center;
+        z-index: 1000;
+      }
+
+      .dialog-content {
+        background: white;
+        padding: 20px;
+        border-radius: 4px;
+        max-width: 400px;
+        width: 100%;
+      }
+
+      .dialog-actions {
+        display: flex;
+        justify-content: flex-end;
+        margin-top: 20px;
+        gap: 10px;
+      }
+
+      .dialog-button {
+        padding: 8px 16px;
+        border: none;
+        border-radius: 2px;
+        cursor: pointer;
+      }
+
+      .dialog-button-primary {
+        background: #d13438;
+        color: white;
+      }
+
+      .dialog-button-secondary {
+        background: #f3f3f3;
+        border: 1px solid #ddd;
+      }
+
+      /* Vendor List */
+      .vendor-card {
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        padding: 15px;
+        margin-bottom: 10px;
+        background: white;
+        transition: box-shadow 0.2s;
+      }
+
+      .vendor-card:hover {
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      }
+
+      .vendor-actions button {
+        background: none;
+        border: none;
+        cursor: pointer;
+        margin-left: 10px;
+      }
+
+      .edit-vendor {
+        color: #0078d4;
+      }
+
+      .delete-vendor {
+        color: #d13438;
+      }
+
+      /* Responsive Adjustments */
+      @media (max-width: 480px) {
+        .banking-container {
+          padding: 20px;
+          max-width: 100%;
+        }
+      }
+
+      .payment-results {
+        animation: fadeIn 0.3s ease-in;
+      }
+
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(-10px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      .payment-results p {
+        margin: 5px 0;
+        font-size: 14px;
+      }
+
+      .payment-results h4 {
+        color: #0078d4;
+        font-size: 16px;
+      }
+    </style>
+  </head>
+
+  <body class="ms-font-m" style="background: #f3f3f3; min-height: 100vh; margin: 0">
+    <div id="container">
+      <!-- Login Section (shown by default) -->
+      <div id="login-section" class="banking-container">
+        <div class="banking-header">
+          <img src="../../assets/vendor .jpg" class="banking-logo" alt="Vendor Logo" />
+          <h2 class="banking-title">Vendor Payment Portal</h2>
+          <p class="banking-subtitle">Secure access to your payment dashboard</p>
+        </div>
+
+        <div class="banking-input">
+          <label for="username">User ID</label>
+          <input
+            id="username"
+            type="text"
+            placeholder="Enter your user ID"
+            autocomplete="username"
+          />
+        </div>
+
+        <div class="banking-input">
+          <label for="password">Password</label>
+          <input
+            id="password"
+            type="password"
+            placeholder="Enter your password"
+            autocomplete="current-password"
+          />
+        </div>
+
+        <button id="login-button" class="banking-button">Sign In</button>
+        <p id="login-error" class="banking-error" style="display: none"></p>
+
+        <div class="banking-footer">
+          <p>Need help? Contact your system administrator</p>
+        </div>
+      </div>
+
+      <!-- App Content (hidden until login) -->
+      <div id="app-content" style="display: none"></div>
+    </div>
+
+    <!-- Confirmation Dialog (hidden by default) -->
+    <div id="confirm-dialog" class="dialog-overlay">
+      <div class="dialog-content">
+        <p>Are you sure you want to delete this vendor?</p>
+        <div class="dialog-actions">
+          <button id="confirm-delete" class="dialog-button dialog-button-primary">Delete</button>
+          <button id="cancel-delete" class="dialog-button dialog-button-secondary">Cancel</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Load your script AFTER Office.js -->
+  </body>
+</html>
