@@ -1,9 +1,15 @@
 {
   "version": 2,
   "builds": [
+    { "src": "dist/taskpane.html", "use": "@vercel/static" },
+    { "src": "dist/commands.html", "use": "@vercel/static" },
+    { "src": "dist/manifest.xml", "use": "@vercel/static" },
     { "src": "dist/**/*", "use": "@vercel/static" }
   ],
   "routes": [
+    { "src": "/taskpane.html", "dest": "dist/taskpane.html" },
+    { "src": "/commands.html", "dest": "dist/commands.html" },
+    { "src": "/manifest.xml", "dest": "dist/manifest.xml" },
     { "src": "/(.*)", "dest": "dist/$1" }
   ]
 }
