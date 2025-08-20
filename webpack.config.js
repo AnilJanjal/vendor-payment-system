@@ -42,7 +42,7 @@ module.exports = async (env, options) => {
           use: "html-loader",
         },
         {
-          test: /\.(png|jpg|jpeg|gif|ico)$/,
+          test: /\.(png|jpg|jpeg|gif|ico)$/i,
           type: "asset/resource",
           generator: {
             filename: "assets/[name][ext][query]",
@@ -51,25 +51,23 @@ module.exports = async (env, options) => {
       ],
     },
     plugins: [
-      // ✅ taskpane.html
+      // ✅ Use public/*.html instead of src
       new HtmlWebpackPlugin({
         filename: "taskpane.html",
-        template: "./src/taskpane/taskpane.html",
+        template: "./public/taskpane.html",
         chunks: ["polyfill", "taskpane"],
       }),
-
-      // ✅ commands.html
       new HtmlWebpackPlugin({
         filename: "commands.html",
-        template: "./src/commands/commands.html",
+        template: "./public/commands.html",
         chunks: ["polyfill", "commands"],
       }),
 
-      // ✅ copy manifest + icons
+      // ✅ Copy manifest + assets
       new CopyWebpackPlugin({
         patterns: [
-          { from: "manifest.xml", to: "manifest.xml" },
-          { from: "assets/*", to: "assets/[name][ext]" },
+          { from: "manifest.xml", to: "manifest.xml" }, // keep manifest at root, copy to dist
+          { from: "public/assets/*", to: "assets/[name][ext]" }, // copy icons/images
         ],
       }),
     ],
