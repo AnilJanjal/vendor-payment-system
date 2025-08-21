@@ -198,7 +198,7 @@ function showApp() {
     container.innerHTML = `
         <div class="banking-container" style="max-width: 800px;">
             <div class="banking-header">
-                <img src="../../assets/vendor .jpg" class="banking-logo" alt="Vendor Logo">
+                <img src="../../assets/vendor.jpg" class="banking-logo" alt="Vendor Logo">
                 <h2 class="banking-title">Vendor Management System</h2>
                 <button id="logout-button" class="banking-button" 
                     style="position: absolute; top: 20px; right: 20px; width: auto; padding: 8px 16px;">

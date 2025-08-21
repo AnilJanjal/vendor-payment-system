@@ -2,10 +2,9 @@
 const devCerts = require("office-addin-dev-certs");
 const CopyWebpackPlugin = require("copy-webpack-plugin");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
-const path = require("path");
 
 const urlDev = "https://localhost:3000/";
-const urlProd = "https://vendor-payment-system-3qwb.vercel.app/"; // Vercel deployment
+const urlProd = "https://www.contoso.com/"; // CHANGE THIS TO YOUR PRODUCTION DEPLOYMENT LOCATION
 
 async function getHttpsOptions() {
   const httpsOptions = await devCerts.getHttpsServerOptions();
@@ -14,16 +13,14 @@ async function getHttpsOptions() {
 
 module.exports = async (env, options) => {
   const dev = options.mode === "development";
-
-  return {
+  const config = {
     devtool: "source-map",
     entry: {
       polyfill: ["core-js/stable", "regenerator-runtime/runtime"],
-      taskpane: "./src/taskpane/taskpane.ts",
+      taskpane: ["./src/taskpane/taskpane.ts", "./src/taskpane/taskpane.html"],
       commands: "./src/commands/commands.ts",
     },
     output: {
-      path: path.resolve(__dirname, "dist"),
       clean: true,
     },
     resolve: {
@@ -34,7 +31,9 @@ module.exports = async (env, options) => {
         {
           test: /\.ts$/,
           exclude: /node_modules/,
-          use: { loader: "babel-loader" },
+          use: {
+            loader: "babel-loader",
+          },
         },
         {
           test: /\.html$/,
@@ -42,7 +41,7 @@ module.exports = async (env, options) => {
           use: "html-loader",
         },
         {
-          test: /\.(png|jpg|jpeg|gif|ico)$/i,
+          test: /\.(png|jpg|jpeg|gif|ico)$/,
           type: "asset/resource",
           generator: {
             filename: "assets/[name][ext][query]",
@@ -51,37 +50,47 @@ module.exports = async (env, options) => {
       ],
     },
     plugins: [
-      // ✅ Use public/*.html instead of src
       new HtmlWebpackPlugin({
         filename: "taskpane.html",
-        template: "./public/taskpane.html",
+        template: "./src/taskpane/taskpane.html",
         chunks: ["polyfill", "taskpane"],
+      }),
+      new CopyWebpackPlugin({
+        patterns: [
+          {
+            from: "assets/*",
+            to: "assets/[name][ext][query]",
+          },
+          {
+            from: "manifest*.xml",
+            to: "[name]" + "[ext]",
+            transform(content) {
+              if (dev) {
+                return content;
+              } else {
+                return content.toString().replace(new RegExp(urlDev, "g"), urlProd);
+              }
+            },
+          },
+        ],
       }),
       new HtmlWebpackPlugin({
         filename: "commands.html",
-        template: "./public/commands.html",
+        template: "./src/commands/commands.html",
         chunks: ["polyfill", "commands"],
-      }),
-
-      // ✅ Copy manifest + assets
-      new CopyWebpackPlugin({
-        patterns: [
-          { from: "manifest.xml", to: "manifest.xml" }, // keep manifest at root, copy to dist
-          { from: "public/assets/*", to: "assets/[name][ext]" }, // copy icons/images
-        ],
       }),
     ],
     devServer: {
-      static: path.join(__dirname, "dist"),
-      headers: { "Access-Control-Allow-Origin": "*" },
+      headers: {
+        "Access-Control-Allow-Origin": "*",
+      },
       server: {
         type: "https",
-        options:
-          env.WEBPACK_BUILD || options.https !== undefined
-            ? options.https
-            : await getHttpsOptions(),
+        options: env.WEBPACK_BUILD || options.https !== undefined ? options.https : await getHttpsOptions(),
       },
       port: process.env.npm_package_config_dev_server_port || 3000,
     },
   };
+
+  return config;
 };
